@@ -31,22 +31,14 @@ public class PlayerController : MonoBehaviour
         body = GetComponent<Rigidbody2D>();
         capsuleCollider = GetComponent<CapsuleCollider2D>();
         animator = GetComponent<Animator>();
+        body.gravityScale = 7;
     }
 
     private void Update()
     {
-        if (Physics2D.BoxCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size, 0, Vector2.down, 0.1f, EndPoint).collider != null)
-        {
-            gameState = GameState.GameWon;
-        }
-
-        if (lives < 1)
-        {
-            gameState = GameState.GameLost;
-        }
-
         horizontalInput = Input.GetAxis("Horizontal");
-        
+        body.velocity = new Vector2(horizontalInput * speed, body.velocity.y);
+
         if (horizontalInput > 0.1f && facingRight)
         {
             Flip();
@@ -55,6 +47,7 @@ public class PlayerController : MonoBehaviour
         {
             Flip();
         }
+
         if (IsGrounded())
         {
             animator.SetBool("IsJumping", false);
@@ -63,9 +56,8 @@ public class PlayerController : MonoBehaviour
         {
             animator.SetBool("IsJumping", true);
         }
-        body.velocity = new Vector2(horizontalInput * speed, body.velocity.y);
         animator.SetFloat("Speed", Mathf.Abs(horizontalInput * speed));
-        body.gravityScale = 7;
+        
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (IsGrounded())
@@ -83,6 +75,16 @@ public class PlayerController : MonoBehaviour
         if (transform.position.y < -40f)
         {
             Respawn();
+        }
+
+        if (Physics2D.BoxCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size, 0, Vector2.down, 0.1f, EndPoint).collider != null)
+        {
+            gameState = GameState.GameWon;
+        }
+
+        if (lives < 1)
+        {
+            gameState = GameState.GameLost;
         }
     }
 
